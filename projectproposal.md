@@ -364,7 +364,7 @@ We considered realtime collaboration but decided it would add unnecessary comple
 
 We chose PostgreSQL over SQLite because we expect multiple aggregation queries and want stronger relational support.
 
-Wwo primary technical hurdles:
+Two primary technical hurdles:
 
 - ServerSide CSV Validation: Handling malformed user uploads without crashing the server or corrupting the database. We need to build a robust validation layer to catch errors before they hit Prisma.
 
