@@ -39,7 +39,7 @@ However, most users don’t interpret their data properly. They look at single w
 By building FitTrack, we aim to:
 
 - Visualize long-term progression  
-- Compute derived metrics (volume, estimated 1RM)  
+- Compute metrics (volume, estimated 1RM -- One rep Max)  
 - Show muscle group distribution  
 - Highlight inconsistencies over time  
 
@@ -112,21 +112,6 @@ We will use:
 - **Prisma ORM as the database client**
 - **TypeScript for backend/server logic**
 
-We chose Next.js full-stack instead of React + Express because:
-
-- Shared types reduce errors.
-- Server-side analytics queries integrate cleanly.
-- It lowers overhead for a 2-person team.
-
-Prisma was chosen because it provides:
-- Type-safe queries
-- Clean migrations
-- Strong integration with TypeScript
-
-PostgreSQL was chosen over SQLite because:
-- We expect heavy aggregation queries.
-- It is closer to production-level systems.
-
 ---
 
 # 2.3 Core Technical Requirements
@@ -137,24 +122,22 @@ Technologies:
 - React (via Next.js)
 - TypeScript
 - Tailwind CSS
-- shadcn/ui
-- Responsive design
 
 Planned pages:
 - Landing page
-- Dashboard (analytics overview)
+- Dashboard
 - Log workout page
 - Workout history page
 - CSV upload page
 - Profile page
 
-Charts will visualize:
+Charts will visualize: (Planned)
 - Weekly volume trends
 - Estimated 1RM progression
 - Exercise frequency
 - Muscle group distribution
 
-State Management:
+State Management: (Changable later)
 - Redux Toolkit (RTK) to manage complex application states that exceed the scope of local component state
 
 We will use Redux Toolkit for:
@@ -268,15 +251,11 @@ We will implement:
 
 Every query will be scoped by userId to prevent cross-access.
 
-This satisfies the authentication and authorization requirement.
+Satisfies the authentication and authorization requirement.
 
 ---
 
 ## Advanced Feature 2: File Handling & Processing (CSV Parsing)
-
-This is not just file upload.
-
-The system will:
 
 - Parse CSV rows server-side
 - Validate schema
@@ -292,8 +271,6 @@ This involves:
 ---
 
 # 2.5 Scope and Feasibility
-
-As a 2-person team, we are focusing on depth over breadth.
 
 Core features:
 - Workout logging
@@ -368,7 +345,7 @@ Final Week:
 
 # 4. Initial Independent Reasoning (Before Using AI)
 
-We wanted a project that:
+This project should have:
 
 - Uses relational data meaningfully
 - Requires non-trivial backend logic
@@ -381,15 +358,15 @@ We chose fitness analytics because:
 - It benefits from structured schemas.
 - It allows meaningful dashboard visualization.
 
-We initially decided on a Next.js Full-Stack (Option A) architecture. We chose this over a separate Express backend because the 2-month timeline and 2-person team size demand high velocity. By using Next.js, we can leverage TypeScript end-to-end, sharing interfaces between our Server Actions and React components, which reduces the bugs typically found in separate frontend-backend repos.
+We initially decided on a Next.js Full-Stack (Option A) architecture. We chose this over a separate Express backend because the 2-month timeline. By using Next.js, we can leverage TypeScript end-to-end, sharing interfaces between our Server Actions and React components, which reduces the bugs typically found in separate frontend-backend repos.
 
 We considered real-time collaboration but decided it would add unnecessary complexity for a 2-person team.
 
 We chose PostgreSQL over SQLite because we expect multiple aggregation queries and want stronger relational support.
 
-We identified two primary technical hurdles:
+Wwo primary technical hurdles:
 
-- Server-Side CSV Validation: Handling malformed user uploads without crashing the server or corrupting the database. We need to build a robust validation layer (likely using Zod) to catch errors before they hit Prisma.
+- Server-Side CSV Validation: Handling malformed user uploads without crashing the server or corrupting the database. We need to build a robust validation layer to catch errors before they hit Prisma.
 
 - Hydration & State Sync: Ensuring that the Redux state on the client remains in sync with Next.js Server Components, especially when a user updates a workout and expects the dashboard charts to reflect it immediately without a full page reload.
 
