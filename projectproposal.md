@@ -32,13 +32,13 @@ We think that there should be a focused, analytics first fitness platform that e
 
 ## 1.2 Why This Project Is Worth Pursuing
 
-Fitness is naturally data-driven. Strength training especially produces structured, repeatable data that can be analyzed.
+Fitness is naturally data driven. Strength training especially produces structured, repeatable data that can be analyzed.
 
 However, most users don’t interpret their data properly. They look at single workouts instead of trends.
 
 By building FitTrack, we aim to:
 
-- Visualize long-term progression  
+- Visualize long term progression  
 - Compute metrics (volume, estimated 1RM -- One rep Max)  
 - Show muscle group distribution  
 - Highlight inconsistencies over time  
@@ -83,7 +83,7 @@ Spreadsheets:
 - Easy to break formulas
 - No structured validation
 
-FitTrack focuses on structured relational storage and backend-driven analytics.
+FitTrack focuses on structured relational storage and backend driven analytics.
 
 ---
 
@@ -95,8 +95,8 @@ FitTrack aims to:
 
 1. Allow users to log structured workout sessions.
 2. Store workout data in a normalized PostgreSQL database.
-3. Support CSV upload and server-side parsing.
-4. Compute meaningful analytics server-side.
+3. Support CSV upload and serverside parsing.
+4. Compute meaningful analytics serverside.
 5. Secure user data with authentication and authorization.
 
 We intentionally avoid building a generic fitness app and instead focus on analytics depth.
@@ -163,14 +163,14 @@ Validation:
 - Schemas for all user input
 - Validation for CSV rows
 
-Example analytics (server-side):
+Example analytics (serverside):
 - Total weekly volume:
   volume = Sum of (reps × weight)
 
 - Muscle group distribution percentage:
   groupVolume / totalVolume
 
-Analytics will be computed server-side to avoid client-side manipulation.
+Analytics will be computed serverside to avoid clientside manipulation.
 
 ---
 
@@ -245,11 +245,11 @@ Malformed rows will be rejected and reported back to the user.
 We will implement:
 
 - Registration and login
-- Session-based authentication
+- Session based authentication
 - Protected routes
-- User-level data isolation
+- User level data isolation
 
-Every query will be scoped by userId to prevent cross-access.
+Every query will be scoped by userId to prevent cross access.
 
 Satisfies the authentication and authorization requirement.
 
@@ -257,7 +257,7 @@ Satisfies the authentication and authorization requirement.
 
 ## Advanced Feature 2: File Handling & Processing (CSV Parsing)
 
-- Parse CSV rows server-side
+- Parse CSV rows serverside
 - Validate schema
 - Handle invalid entries
 - Insert normalized records
@@ -282,7 +282,7 @@ Not included:
 - Social feed
 - Messaging
 - Payment systems
-- Real-time multi-user collaboration
+- Realtime multiuser collaboration
 
 We believe this scope is realistic while still technically challenging.
 
@@ -348,7 +348,7 @@ Final Week:
 This project should have:
 
 - Uses relational data meaningfully
-- Requires non-trivial backend logic
+- Requires non trivial backend logic
 - Demonstrates aggregation queries
 - Includes at least one advanced feature beyond CRUD
 
@@ -358,15 +358,15 @@ We chose fitness analytics because:
 - It benefits from structured schemas.
 - It allows meaningful dashboard visualization.
 
-We initially decided on a Next.js Full-Stack (Option A) architecture. We chose this over a separate Express backend because the 2-month timeline. By using Next.js, we can leverage TypeScript end-to-end, sharing interfaces between our Server Actions and React components, which reduces the bugs typically found in separate frontend-backend repos.
+We initially decided on a Next.js FullStack (Option A) architecture. We chose this over a separate Express backend because the 2-month timeline. By using Next.js, we can leverage TypeScript, sharing interfaces between our Server Actions and React components, which reduces the bugs typically found in separate frontend/backend repos.
 
-We considered real-time collaboration but decided it would add unnecessary complexity for a 2-person team.
+We considered realtime collaboration but decided it would add unnecessary complexity for a 2-person team.
 
 We chose PostgreSQL over SQLite because we expect multiple aggregation queries and want stronger relational support.
 
 Wwo primary technical hurdles:
 
-- Server-Side CSV Validation: Handling malformed user uploads without crashing the server or corrupting the database. We need to build a robust validation layer to catch errors before they hit Prisma.
+- ServerSide CSV Validation: Handling malformed user uploads without crashing the server or corrupting the database. We need to build a robust validation layer to catch errors before they hit Prisma.
 
 - Hydration & State Sync: Ensuring that the Redux state on the client remains in sync with Next.js Server Components, especially when a user updates a workout and expects the dashboard charts to reflect it immediately without a full page reload.
 
