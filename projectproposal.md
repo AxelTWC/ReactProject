@@ -26,7 +26,7 @@ These tools store numbers (sets, reps, weight), but they don’t really help ans
 
 Many commercial apps lock detailed analytics behind paid plans. Spreadsheets can compute metrics, but they require manual formulas and constant maintenance.
 
-We think there’s room for a focused, analytics-first fitness platform that emphasizes structured data and meaningful insights instead of social features.
+We think that there should be a focused, analytics first fitness platform that emphasizes structured data and meaningful insights instead of social features.
 
 ---
 
