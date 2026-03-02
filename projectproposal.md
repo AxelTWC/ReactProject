@@ -381,4 +381,6 @@ Without AI:
 - Scope planning
 
 With AI:
-- AI Assist on Debugging if needed especially for backend deployment
+- Questions that other fitness app have but are behind payment walls
+- Influenced/Enforced the opinion between Option A and B for tech stack ( which one is more suitable and is described throughout the proposal)
+- Analytics examples that could be calculated for this application.
