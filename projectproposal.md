@@ -1,9 +1,8 @@
 # FitTrack — Fitness Analytics & Workout Insights Platform
 
-**Course:**:
-**Team Name:** 
 **Team Members:**  
-- Axel 
+- Axel Tang
+- Tharun Seshachalam
 
 ---
 
@@ -142,7 +141,6 @@ Technologies:
 - Responsive design
 
 Planned pages:
-
 - Landing page
 - Dashboard (analytics overview)
 - Log workout page
@@ -151,13 +149,13 @@ Planned pages:
 - Profile page
 
 Charts will visualize:
-
 - Weekly volume trends
 - Estimated 1RM progression
 - Exercise frequency
 - Muscle group distribution
 
 State Management:
+- Redux Toolkit (RTK) to manage complex application states that exceed the scope of local component state
 
 We will use Redux Toolkit for:
 - Authentication state
@@ -183,7 +181,6 @@ Validation:
 - Validation for CSV rows
 
 Example analytics (server-side):
-
 - Total weekly volume:
   volume = Sum of (reps × weight)
 
@@ -242,7 +239,7 @@ We normalize sessions and sets to avoid duplication and to support flexible quer
 
 ## Cloud Storage
 
-We will use AWS S3 (or DigitalOcean Spaces) to store:
+We will use AWS S3 or DigitalOcean Spaces or Azure ADLS to store:
 
 - Uploaded CSV files
 - Exported analytics reports
@@ -294,18 +291,6 @@ This involves:
 
 ---
 
-## Advanced Feature 3: Advanced State Management
-
-Redux Toolkit will manage:
-
-- Filtered date ranges
-- Derived chart states
-- Cross-component dashboard updates
-
-This prevents prop drilling and keeps analytics synchronized.
-
----
-
 # 2.5 Scope and Feasibility
 
 As a 2-person team, we are focusing on depth over breadth.
@@ -352,7 +337,7 @@ Both:
 
 ---
 
-## Timeline -- (Intechangable)
+## Timeline
 
 Week 1:
 - Setup project
@@ -396,9 +381,17 @@ We chose fitness analytics because:
 - It benefits from structured schemas.
 - It allows meaningful dashboard visualization.
 
+We initially decided on a Next.js Full-Stack (Option A) architecture. We chose this over a separate Express backend because the 2-month timeline and 2-person team size demand high velocity. By using Next.js, we can leverage TypeScript end-to-end, sharing interfaces between our Server Actions and React components, which reduces the bugs typically found in separate frontend-backend repos.
+
 We considered real-time collaboration but decided it would add unnecessary complexity for a 2-person team.
 
 We chose PostgreSQL over SQLite because we expect multiple aggregation queries and want stronger relational support.
+
+We identified two primary technical hurdles:
+
+- Server-Side CSV Validation: Handling malformed user uploads without crashing the server or corrupting the database. We need to build a robust validation layer (likely using Zod) to catch errors before they hit Prisma.
+
+- Hydration & State Sync: Ensuring that the Redux state on the client remains in sync with Next.js Server Components, especially when a user updates a workout and expects the dashboard charts to reflect it immediately without a full page reload.
 
 ---
 
@@ -412,4 +405,3 @@ Without AI:
 
 With AI:
 - AI Assist on Debugging if needed especially for backend deployment
-
