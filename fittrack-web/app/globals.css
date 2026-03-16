@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f3f7fb;
+  --surface: #ffffff;
+  --surface-muted: #e8eef6;
+  --text: #10233d;
+  --muted: #5f7390;
+  --primary: #0f5ec2;
+  --primary-strong: #0b4b9c;
+  --success: #1f9d67;
+  --warning: #d67b1c;
+  --danger: #c9413b;
+  --border: #d3dde9;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --font-sans: var(--font-body);
+}
+
+body {
+  background:
+    radial-gradient(circle at 15% 15%, rgba(15, 94, 194, 0.14), transparent 30%),
+    radial-gradient(circle at 85% 10%, rgba(31, 157, 103, 0.14), transparent 28%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-body), sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading), sans-serif;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.field {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  width: 100%;
+  background: #fff;
+}
+
+.field:focus {
+  outline: 2px solid color-mix(in srgb, var(--primary) 45%, white);
+  outline-offset: 1px;
+}
