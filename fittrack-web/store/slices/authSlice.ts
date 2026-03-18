@@ -6,14 +6,18 @@ type AuthState = {
 };
 
 const initialState: AuthState = {
-  isAuthenticated: true,
-  email: "student@fittrack.app",
+  isAuthenticated: false,
+  email: null,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    setAuthState: (state, action: PayloadAction<AuthState>) => {
+      state.isAuthenticated = action.payload.isAuthenticated;
+      state.email = action.payload.email;
+    },
     loginSuccess: (state, action: PayloadAction<string>) => {
       state.isAuthenticated = true;
       state.email = action.payload;
@@ -25,5 +29,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { loginSuccess, logout } = authSlice.actions;
+export const { setAuthState, loginSuccess, logout } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,12 +1,64 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { useAppSelector } from "@/store/hooks";
 
+type DashboardData = {
+  kpis: {
+    weeklyVolume: number;
+    avgEstimatedOneRM: number;
+    consistencyScore: number;
+  };
+  charts: {
+    volumeTrend: Array<{ week: string; volume: number }>;
+    oneRMTrend: Array<{ date: string; oneRM: number }>;
+    muscleDistribution: Array<{ muscleGroup: string; percent: number }>;
+    exerciseFrequency: Array<{ exerciseName: string; count: number }>;
+  };
+};
+
 export default function DashboardPage() {
-  const data = useAppSelector((state) => state.dashboard);
+  const dashboard = useAppSelector((state) => state.dashboard);
+  const [data, setData] = useState<DashboardData>({
+    kpis: dashboard.kpis,
+    charts: dashboard.charts,
+  });
+  const [error, setError] = useState<string | null>(null);
+
+  const maxVolume = useMemo(() => {
+    if (data.charts.volumeTrend.length === 0) {
+      return 1;
+    }
+    return Math.max(...data.charts.volumeTrend.map((item) => item.volume), 1);
+  }, [data.charts.volumeTrend]);
+
+  useEffect(() => {
+    const run = async () => {
+      setError(null);
+      const params = new URLSearchParams({
+        from: dashboard.dateRange.from,
+        to: dashboard.dateRange.to,
+      });
+
+      const response = await fetch(`/api/analytics/summary?${params.toString()}`, {
+        credentials: "include",
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result?.error ?? "Unable to load analytics");
+        return;
+      }
+
+      setData(result);
+    };
+
+    run();
+  }, [dashboard.dateRange.from, dashboard.dateRange.to, dashboard.selectedExerciseId]);
 
   return (
     <section className="space-y-4">
+      {error ? <p className="text-sm text-[color:var(--danger)]">{error}</p> : null}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <article className="card p-4">
           <p className="text-sm text-[color:var(--muted)]">Weekly Volume</p>
@@ -32,7 +84,7 @@ export default function DashboardPage() {
                 <div className="h-3 rounded-full bg-[color:var(--surface-muted)]">
                   <div
                     className="h-3 rounded-full bg-[color:var(--primary)]"
-                    style={{ width: `${Math.round((item.volume / 19000) * 100)}%` }}
+                    style={{ width: `${Math.round((item.volume / maxVolume) * 100)}%` }}
                   />
                 </div>
                 <span className="text-right text-sm font-semibold">{item.volume}</span>

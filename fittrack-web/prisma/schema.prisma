@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String           @id @default(cuid())
+  email        String           @unique
+  passwordHash String
+  createdAt    DateTime         @default(now())
+  sessions     WorkoutSession[]
+  uploads      CSVUpload[]
+}
+
+model Exercise {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  muscleGroup String
+  createdAt   DateTime     @default(now())
+  sets        WorkoutSet[]
+}
+
+model WorkoutSession {
+  id        String       @id @default(cuid())
+  userId    String
+  date      DateTime
+  notes     String?
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sets      WorkoutSet[]
+
+  @@index([userId, date])
+}
+
+model WorkoutSet {
+  id         String         @id @default(cuid())
+  sessionId  String
+  exerciseId String
+  reps       Int
+  weight     Float
+  duration   Int?
+  setNumber  Int
+  createdAt  DateTime       @default(now())
+  session    WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exercise   Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+
+  @@index([sessionId])
+  @@index([exerciseId])
+}
+
+model CSVUpload {
+  id              String   @id @default(cuid())
+  userId          String
+  fileKey         String
+  storageProvider String
+  uploadedAt      DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, uploadedAt])
+}

@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAppDispatch } from "@/store/hooks";
+import { logout } from "@/store/slices/authSlice";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
@@ -13,6 +15,17 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+
+  const onLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    } finally {
+      dispatch(logout());
+      router.push("/login");
+    }
+  };
 
   return (
     <aside className="card h-fit p-4 md:sticky md:top-6">
@@ -34,6 +47,13 @@ export function Sidebar() {
             </Link>
           );
         })}
+        <button
+          type="button"
+          onClick={onLogout}
+          className="block w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-[color:var(--danger)] hover:bg-[color:var(--surface-muted)]"
+        >
+          Log out
+        </button>
       </nav>
     </aside>
   );

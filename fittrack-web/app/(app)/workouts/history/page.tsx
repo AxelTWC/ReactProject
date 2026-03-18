@@ -1,11 +1,47 @@
-const sessions = [
-  { date: "2026-03-14", split: "Push", sets: 18, volume: 6020 },
-  { date: "2026-03-12", split: "Pull", sets: 16, volume: 5430 },
-  { date: "2026-03-10", split: "Legs", sets: 20, volume: 7120 },
-  { date: "2026-03-08", split: "Upper", sets: 15, volume: 4900 },
-];
+"use client";
+
+import { useEffect, useState } from "react";
+
+type SessionItem = {
+  id: string;
+  date: string;
+  split: string;
+  sets: number;
+  volume: number;
+};
 
 export default function HistoryPage() {
+  const [sessions, setSessions] = useState<SessionItem[]>([]);
+  const [query, setQuery] = useState("");
+  const [date, setDate] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchSessions = async () => {
+    setError(null);
+    const params = new URLSearchParams();
+    if (query.trim()) {
+      params.set("query", query.trim());
+    }
+    if (date) {
+      params.set("date", date);
+    }
+
+    const response = await fetch(`/api/workouts?${params.toString()}`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      setError(data?.error ?? "Unable to load workout history");
+      return;
+    }
+
+    setSessions(data.sessions ?? []);
+  };
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
+
   return (
     <section className="space-y-4">
       <article className="card p-4">
@@ -15,12 +51,21 @@ export default function HistoryPage() {
         </p>
 
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
-          <input className="field" placeholder="Search split or exercise" />
-          <input className="field" type="date" />
-          <button className="rounded-md border border-[color:var(--border)] px-3 py-2 text-sm font-semibold">
+          <input
+            className="field"
+            placeholder="Search split or exercise"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+          <input className="field" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+          <button
+            className="rounded-md border border-[color:var(--border)] px-3 py-2 text-sm font-semibold"
+            onClick={fetchSessions}
+          >
             Apply Filters
           </button>
         </div>
+        {error ? <p className="mt-3 text-sm text-[color:var(--danger)]">{error}</p> : null}
       </article>
 
       <article className="card p-4">
@@ -37,15 +82,13 @@ export default function HistoryPage() {
             </thead>
             <tbody>
               {sessions.map((session) => (
-                <tr key={session.date} className="border-b border-[color:var(--border)]">
+                <tr key={session.id} className="border-b border-[color:var(--border)]">
                   <td className="py-2">{session.date}</td>
                   <td className="py-2">{session.split}</td>
                   <td className="py-2">{session.sets}</td>
                   <td className="py-2">{session.volume.toLocaleString()}</td>
                   <td className="py-2">
-                    <button className="rounded-md border border-[color:var(--border)] px-2 py-1 text-xs font-semibold">
-                      View
-                    </button>
+                    <span className="text-xs text-[color:var(--muted)]">session id: {session.id.slice(0, 8)}</span>
                   </td>
                 </tr>
               ))}

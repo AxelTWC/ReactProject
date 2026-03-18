@@ -3,15 +3,59 @@
 import {
   addSet,
   removeSet,
+  resetWorkout,
   setWorkoutDate,
   setWorkoutNotes,
   updateSet,
 } from "@/store/slices/workoutSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useState } from "react";
 
 export default function NewWorkoutPage() {
   const dispatch = useAppDispatch();
   const workout = useAppSelector((state) => state.workout);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const saveSession = async () => {
+    setError(null);
+    setSuccess(null);
+    setIsSaving(true);
+
+    try {
+      const payload = {
+        date: workout.date,
+        notes: workout.notes,
+        sets: workout.sets.map((set, index) => ({
+          exercise: set.exercise,
+          reps: Number(set.reps),
+          weight: Number(set.weight),
+          setNumber: index + 1,
+        })),
+      };
+
+      const response = await fetch("/api/workouts", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data?.error ?? "Failed to save workout");
+        return;
+      }
+
+      dispatch(resetWorkout());
+      setSuccess("Workout session saved");
+    } catch {
+      setError("Failed to save workout");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <section className="card p-4">
@@ -130,10 +174,15 @@ export default function NewWorkoutPage() {
         <button
           type="button"
           className="rounded-md bg-[color:var(--primary)] px-3 py-2 text-sm font-semibold text-white"
+          onClick={saveSession}
+          disabled={isSaving}
         >
-          Save Session
+          {isSaving ? "Saving..." : "Save Session"}
         </button>
       </div>
+
+      {error ? <p className="mt-3 text-sm text-[color:var(--danger)]">{error}</p> : null}
+      {success ? <p className="mt-3 text-sm text-[color:var(--success)]">{success}</p> : null}
     </section>
   );
 }

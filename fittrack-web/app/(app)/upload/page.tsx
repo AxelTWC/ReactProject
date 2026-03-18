@@ -1,30 +1,49 @@
 "use client";
 
 import { useState } from "react";
-import { completeUpload, setProcessing, startUpload } from "@/store/slices/uploadSlice";
+import { completeUpload, failUpload, setProcessing, startUpload } from "@/store/slices/uploadSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 export default function UploadPage() {
   const dispatch = useAppDispatch();
   const upload = useAppSelector((state) => state.upload);
-  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const processSampleFile = () => {
-    const fileName = selectedFileName ?? "fittrack_upload.csv";
+  const uploadFile = async () => {
+    if (!selectedFile) {
+      dispatch(failUpload("Select a CSV file first"));
+      return;
+    }
+
+    const fileName = selectedFile.name;
     dispatch(startUpload(fileName));
     dispatch(setProcessing());
-    dispatch(
-      completeUpload({
-        validRows: 82,
-        invalidRows: 4,
-        errors: [
-          { row: 12, message: "Missing reps value" },
-          { row: 31, message: "Invalid date format" },
-          { row: 45, message: "Unknown exercise name" },
-          { row: 77, message: "Negative weight value" },
-        ],
-      }),
-    );
+
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      const response = await fetch("/api/uploads/csv", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        dispatch(failUpload(data?.error ?? "Upload failed"));
+        return;
+      }
+
+      dispatch(
+        completeUpload({
+          validRows: data.validRows,
+          invalidRows: data.invalidRows,
+          errors: data.errors,
+        }),
+      );
+    } catch {
+      dispatch(failUpload("Upload failed"));
+    }
   };
 
   return (
@@ -44,20 +63,20 @@ export default function UploadPage() {
               className="hidden"
               accept=".csv"
               onChange={(event) => {
-                const fileName = event.target.files?.[0]?.name ?? null;
-                setSelectedFileName(fileName);
+                const file = event.target.files?.[0] ?? null;
+                setSelectedFile(file);
               }}
             />
           </label>
           <p className="mt-2 text-xs text-[color:var(--muted)]">
-            {selectedFileName ?? "No file selected"}
+            {selectedFile?.name ?? "No file selected"}
           </p>
         </div>
 
         <button
           type="button"
           className="mt-4 rounded-md bg-[color:var(--primary)] px-3 py-2 text-sm font-semibold text-white"
-          onClick={processSampleFile}
+          onClick={uploadFile}
         >
           Upload and Parse
         </button>
