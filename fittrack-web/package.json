@@ -9,10 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.911.0",
-    "@aws-sdk/s3-request-presigner": "^3.911.0",
-    "@reduxjs/toolkit": "^2.11.2",
+    "@azure/storage-blob": "^12.27.0",
     "@prisma/client": "^6.8.2",
+    "@reduxjs/toolkit": "^2.11.2",
     "bcryptjs": "^2.4.3",
     "csv-parse": "^5.6.0",
     "jsonwebtoken": "^9.0.2",

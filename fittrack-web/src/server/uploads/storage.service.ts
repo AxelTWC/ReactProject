@@ -1,54 +1,47 @@
 import { randomUUID } from "crypto";
 import { mkdir, writeFile, readFile } from "fs/promises";
 import path from "path";
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { BlobServiceClient } from "@azure/storage-blob";
 
 export type StoredFile = {
   key: string;
-  provider: "local" | "s3";
+  provider: "local" | "azure";
 };
 
 const LOCAL_UPLOAD_DIR = path.join(process.cwd(), "tmp_uploads");
 
-function hasS3Config() {
+function hasAzureConfig() {
   return Boolean(
-    process.env.S3_BUCKET &&
-      process.env.S3_REGION &&
-      process.env.S3_ACCESS_KEY_ID &&
-      process.env.S3_SECRET_ACCESS_KEY,
+    process.env.AZURE_STORAGE_CONNECTION_STRING && process.env.AZURE_STORAGE_CONTAINER_NAME,
   );
 }
 
-function getS3Client() {
-  const client = new S3Client({
-    region: process.env.S3_REGION,
-    credentials: {
-      accessKeyId: process.env.S3_ACCESS_KEY_ID ?? "",
-      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? "",
-    },
-    endpoint: process.env.S3_ENDPOINT || undefined,
-    forcePathStyle: process.env.S3_FORCE_PATH_STYLE === "true",
-  });
+function getAzureContainerClient() {
+  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+  const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME;
+  if (!connectionString || !containerName) {
+    throw new Error("Azure Blob storage is not configured");
+  }
 
-  return client;
+  const serviceClient = BlobServiceClient.fromConnectionString(connectionString);
+  return serviceClient.getContainerClient(containerName);
 }
 
 export async function storeCsvFile(fileName: string, data: Buffer): Promise<StoredFile> {
   const key = `${Date.now()}-${randomUUID()}-${fileName}`;
 
-  if (hasS3Config()) {
-    const client = getS3Client();
-    await client.send(
-      new PutObjectCommand({
-        Bucket: process.env.S3_BUCKET,
-        Key: key,
-        Body: data,
-        ContentType: "text/csv",
-      }),
-    );
+  if (hasAzureConfig()) {
+    const containerClient = getAzureContainerClient();
+    await containerClient.createIfNotExists();
 
-    return { key, provider: "s3" };
+    const blobClient = containerClient.getBlockBlobClient(key);
+    await blobClient.uploadData(data, {
+      blobHTTPHeaders: {
+        blobContentType: "text/csv",
+      },
+    });
+
+    return { key, provider: "azure" };
   }
 
   await mkdir(LOCAL_UPLOAD_DIR, { recursive: true });
@@ -57,13 +50,9 @@ export async function storeCsvFile(fileName: string, data: Buffer): Promise<Stor
 }
 
 export async function getDownloadUrl(fileKey: string, provider: string): Promise<string | null> {
-  if (provider === "s3" && hasS3Config()) {
-    const client = getS3Client();
-    const command = new GetObjectCommand({
-      Bucket: process.env.S3_BUCKET,
-      Key: fileKey,
-    });
-    return getSignedUrl(client, command, { expiresIn: 300 });
+  if (provider === "azure" && hasAzureConfig()) {
+    const containerClient = getAzureContainerClient();
+    return containerClient.getBlockBlobClient(fileKey).url;
   }
 
   if (provider === "local") {
