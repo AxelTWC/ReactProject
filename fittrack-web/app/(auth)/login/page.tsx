@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/store/hooks";
 import { loginSuccess } from "@/store/slices/authSlice";
+import { authClient } from "@/src/lib/auth-client";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,20 +21,18 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
+      const { data, error: signInError } = await authClient.signIn.email({
+        email,
+        password,
+        callbackURL: "/dashboard",
       });
-      const data = await response.json();
 
-      if (!response.ok) {
-        setError(data?.error ?? "Login failed");
+      if (signInError) {
+        setError(signInError.message ?? "Login failed");
         return;
       }
 
-      dispatch(loginSuccess(data.user.email));
+      dispatch(loginSuccess(data?.user?.email ?? email));
       router.push("/dashboard");
     } catch {
       setError("Unable to log in right now");
@@ -41,6 +40,14 @@ export default function LoginPage() {
       setIsSubmitting(false);
     }
   }
+
+  const onGoogleSignIn = async () => {
+    setError(null);
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/dashboard",
+    });
+  };
 
   return (
     <div>
@@ -83,6 +90,14 @@ export default function LoginPage() {
           {isSubmitting ? "Signing in..." : "Continue"}
         </button>
       </form>
+
+      <button
+        type="button"
+        onClick={onGoogleSignIn}
+        className="mt-3 block rounded-md border border-[color:var(--border)] bg-white px-4 py-2 text-center text-sm font-semibold"
+      >
+        Continue with Google
+      </button>
 
       <p className="mt-4 text-sm text-[color:var(--muted)]">
         Need an account?{" "}

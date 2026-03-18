@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/store/hooks";
 import { loginSuccess } from "@/store/slices/authSlice";
+import { authClient } from "@/src/lib/auth-client";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,20 +27,19 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
+      const { data, error: signUpError } = await authClient.signUp.email({
+        name: email.split("@")[0] || "FitTrack User",
+        email,
+        password,
+        callbackURL: "/dashboard",
       });
-      const data = await response.json();
 
-      if (!response.ok) {
-        setError(data?.error ?? "Registration failed");
+      if (signUpError) {
+        setError(signUpError.message ?? "Registration failed");
         return;
       }
 
-      dispatch(loginSuccess(data.user.email));
+      dispatch(loginSuccess(data?.user?.email ?? email));
       router.push("/dashboard");
     } catch {
       setError("Unable to create account right now");
@@ -47,6 +47,14 @@ export default function RegisterPage() {
       setIsSubmitting(false);
     }
   }
+
+  const onGoogleSignIn = async () => {
+    setError(null);
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/dashboard",
+    });
+  };
 
   return (
     <div>
@@ -100,6 +108,14 @@ export default function RegisterPage() {
           {isSubmitting ? "Creating account..." : "Create Account"}
         </button>
       </form>
+
+      <button
+        type="button"
+        onClick={onGoogleSignIn}
+        className="mt-3 block rounded-md border border-[color:var(--border)] bg-white px-4 py-2 text-center text-sm font-semibold"
+      >
+        Continue with Google
+      </button>
 
       <p className="mt-4 text-sm text-[color:var(--muted)]">
         Already registered?{" "}

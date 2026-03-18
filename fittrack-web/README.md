@@ -14,7 +14,10 @@ npm install
 
 ```env
 DATABASE_URL="postgresql://ece1724admin:<password>@ece1724-postgresql-server.postgres.database.azure.com:5432/postgres?schema=public&sslmode=require"
-JWT_SECRET="replace-with-a-long-random-secret"
+BETTER_AUTH_SECRET="replace-with-a-long-random-secret-at-least-32-chars"
+BETTER_AUTH_URL="http://localhost:3000"
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 AZURE_STORAGE_CONNECTION_STRING="<your-azure-storage-connection-string>"
 AZURE_STORAGE_CONTAINER_NAME="fittrack-uploads"
 ```

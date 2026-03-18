@@ -1,26 +1,22 @@
 import { AppShell } from "@/components/layout/AppShell";
-import { cookies } from "next/headers";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getAuthCookieName, verifyAuthToken } from "@/src/server/auth/auth.service";
-import { prisma } from "@/src/server/db/prisma";
+import { auth } from "@/src/lib/auth";
+import { getHeadersUserId } from "@/src/server/middleware/require-auth";
 
 export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const token = (await cookies()).get(getAuthCookieName())?.value;
-  const payload = token ? verifyAuthToken(token) : null;
-  if (!payload) {
+  const requestHeaders = await headers();
+  const session = await auth.api.getSession({ headers: requestHeaders });
+  if (!session?.user?.email) {
     redirect("/login");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    select: { id: true },
-  });
-
-  if (!user) {
+  const userId = await getHeadersUserId(requestHeaders);
+  if (!userId) {
     redirect("/login");
   }
 

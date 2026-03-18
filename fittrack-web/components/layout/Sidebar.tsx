@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
+import { authClient } from "@/src/lib/auth-client";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
@@ -20,7 +21,7 @@ export function Sidebar() {
 
   const onLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+      await authClient.signOut();
     } finally {
       dispatch(logout());
       router.push("/login");

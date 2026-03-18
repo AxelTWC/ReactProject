@@ -10,6 +10,7 @@ import {
 } from "@/store/slices/workoutSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useState } from "react";
+import { createWorkoutAction } from "./actions";
 
 export default function NewWorkoutPage() {
   const dispatch = useAppDispatch();
@@ -35,16 +36,9 @@ export default function NewWorkoutPage() {
         })),
       };
 
-      const response = await fetch("/api/workouts", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data?.error ?? "Failed to save workout");
+      const result = await createWorkoutAction(payload);
+      if (!result.ok) {
+        setError(result.error ?? "Failed to save workout");
         return;
       }
 

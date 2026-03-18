@@ -13,6 +13,7 @@ const exerciseOptions = [
 
 export function Topbar() {
   const dispatch = useAppDispatch();
+  const authEmail = useAppSelector((state) => state.auth.email);
   const dateRange = useAppSelector((state) => state.dashboard.dateRange);
   const selectedExerciseId = useAppSelector(
     (state) => state.dashboard.selectedExerciseId,
@@ -25,6 +26,9 @@ export function Topbar() {
         <p className="text-sm text-[color:var(--muted)]">
           Monitor training trends and find weak points.
         </p>
+        {authEmail ? (
+          <p className="mt-1 text-xs text-[color:var(--muted)]">Signed in as {authEmail}</p>
+        ) : null}
       </div>
 
       <div className="grid w-full gap-2 sm:grid-cols-3 md:max-w-xl">
