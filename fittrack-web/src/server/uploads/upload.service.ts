@@ -87,3 +87,30 @@ export async function processWorkoutCsvUpload(userId: string, fileName: string, 
 		storageProvider: stored.provider,
 	};
 }
+
+function deriveOriginalFileName(fileKey: string): string {
+	const parts = fileKey.split("-");
+	if (parts.length <= 2) {
+		return fileKey;
+	}
+	return parts.slice(2).join("-");
+}
+
+export async function listUserUploads(userId: string) {
+	const uploads = await prisma.cSVUpload.findMany({
+		where: { userId },
+		orderBy: { uploadedAt: "desc" },
+		select: {
+			id: true,
+			fileKey: true,
+			uploadedAt: true,
+		},
+	});
+
+	return uploads.map((upload) => ({
+		id: upload.id,
+		fileKey: upload.fileKey,
+		fileName: deriveOriginalFileName(upload.fileKey),
+		uploadedAt: upload.uploadedAt,
+	}));
+}

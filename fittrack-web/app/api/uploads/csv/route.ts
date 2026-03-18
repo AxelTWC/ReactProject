@@ -3,7 +3,7 @@ import { getRequestUserId } from "@/src/server/middleware/require-auth";
 import { handleUploadCsv } from "@/src/server/uploads/upload.routes";
 
 export async function POST(request: NextRequest) {
-  const userId = getRequestUserId(request);
+  const userId = await getRequestUserId(request);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

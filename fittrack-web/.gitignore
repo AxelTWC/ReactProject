@@ -34,8 +34,6 @@ yarn-error.log*
 .env*
 
 # local dev storage
-prisma/dev.db
-prisma/dev.db-journal
 tmp_uploads/
 
 # vercel
@@ -44,3 +42,6 @@ tmp_uploads/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+#app zip
+*.zip

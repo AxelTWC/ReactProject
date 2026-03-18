@@ -3,7 +3,7 @@ import { getRequestUserId } from "@/src/server/middleware/require-auth";
 import { handleCreateWorkout, handleListWorkouts } from "@/src/server/workouts/workout.routes";
 
 export async function GET(request: NextRequest) {
-  const userId = getRequestUserId(request);
+  const userId = await getRequestUserId(request);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const userId = getRequestUserId(request);
+  const userId = await getRequestUserId(request);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readLocalUploadedFile } from "@/src/server/uploads/storage.service";
+import { readAzureUploadedFile } from "@/src/server/uploads/storage.service";
 import { getRequestUserId } from "@/src/server/middleware/require-auth";
 import { prisma } from "@/src/server/db/prisma";
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { fileKey: string } },
+  { params }: { params: Promise<{ fileKey: string }> },
 ) {
-  const userId = getRequestUserId(_request);
+  const userId = await getRequestUserId(_request);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { fileKey } = params;
+  const { fileKey } = await params;
   const upload = await prisma.cSVUpload.findFirst({
     where: {
       userId,
@@ -25,7 +25,7 @@ export async function GET(
   }
 
   try {
-    const data = await readLocalUploadedFile(fileKey);
+    const data = await readAzureUploadedFile(fileKey);
     return new NextResponse(new Uint8Array(data), {
       headers: {
         "content-type": "text/csv",

@@ -1,13 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { completeUpload, failUpload, setProcessing, startUpload } from "@/store/slices/uploadSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+
+type PastUpload = {
+  id: string;
+  fileKey: string;
+  fileName: string;
+  uploadedAt: string;
+};
 
 export default function UploadPage() {
   const dispatch = useAppDispatch();
   const upload = useAppSelector((state) => state.upload);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [pastUploads, setPastUploads] = useState<PastUpload[]>([]);
+  const [isLoadingUploads, setIsLoadingUploads] = useState(false);
+
+  const loadUploads = async () => {
+    setIsLoadingUploads(true);
+    try {
+      const response = await fetch("/api/uploads", { credentials: "include" });
+      const data = await response.json();
+      if (response.ok) {
+        setPastUploads(data.uploads ?? []);
+      }
+    } finally {
+      setIsLoadingUploads(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUploads();
+  }, []);
 
   const uploadFile = async () => {
     if (!selectedFile) {
@@ -41,6 +67,7 @@ export default function UploadPage() {
           errors: data.errors,
         }),
       );
+      await loadUploads();
     } catch {
       dispatch(failUpload("Upload failed"));
     }
@@ -115,6 +142,43 @@ export default function UploadPage() {
               </li>
             ))}
           </ul>
+        )}
+      </article>
+
+      <article className="card p-4">
+        <h3 className="text-lg font-bold">Past Uploads</h3>
+        {isLoadingUploads ? (
+          <p className="mt-2 text-sm text-[color:var(--muted)]">Loading uploads...</p>
+        ) : pastUploads.length === 0 ? (
+          <p className="mt-2 text-sm text-[color:var(--muted)]">No uploads yet.</p>
+        ) : (
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-[520px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-[color:var(--border)] text-[color:var(--muted)]">
+                  <th className="px-2 py-2 font-semibold">Uploaded At</th>
+                  <th className="px-2 py-2 font-semibold">File Name</th>
+                  <th className="px-2 py-2 font-semibold">Download</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pastUploads.map((item) => (
+                  <tr key={item.id} className="border-b border-[color:var(--border)]">
+                    <td className="px-2 py-2">{new Date(item.uploadedAt).toLocaleString()}</td>
+                    <td className="px-2 py-2">{item.fileName}</td>
+                    <td className="px-2 py-2">
+                      <a
+                        href={`/api/uploads/download/${encodeURIComponent(item.fileKey)}`}
+                        className="font-semibold text-[color:var(--primary)]"
+                      >
+                        Download CSV
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </article>
     </section>

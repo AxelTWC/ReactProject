@@ -7,6 +7,7 @@ import {
 	signAuthToken,
 	verifyAuthToken,
 } from "@/src/server/auth/auth.service";
+import { prisma } from "@/src/server/db/prisma";
 
 const authSchema = z.object({
 	email: z.string().email(),
@@ -77,7 +78,7 @@ export function handleLogout() {
 	return response;
 }
 
-export function handleMe(token: string | undefined) {
+export async function handleMe(token: string | undefined) {
 	if (!token) {
 		return NextResponse.json({ user: null });
 	}
@@ -87,10 +88,22 @@ export function handleMe(token: string | undefined) {
 		return NextResponse.json({ user: null });
 	}
 
+	const user = await prisma.user.findUnique({
+		where: { id: payload.userId },
+		select: {
+			id: true,
+			email: true,
+		},
+	});
+
+	if (!user) {
+		return NextResponse.json({ user: null });
+	}
+
 	return NextResponse.json({
 		user: {
-			id: payload.userId,
-			email: payload.email,
+			id: user.id,
+			email: user.email,
 		},
 	});
 }
