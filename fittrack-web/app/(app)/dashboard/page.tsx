@@ -32,6 +32,13 @@ export default function DashboardPage() {
     return Math.max(...data.charts.volumeTrend.map((item) => item.volume), 1);
   }, [data.charts.volumeTrend]);
 
+  const maxOneRM = useMemo(() => {
+    if (data.charts.oneRMTrend.length === 0) {
+      return 1;
+    }
+    return Math.max(...data.charts.oneRMTrend.map((item) => item.oneRM), 1);
+  }, [data.charts.oneRMTrend]);
+
   useEffect(() => {
     const run = async () => {
       setError(null);
@@ -76,10 +83,10 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <article className="card p-4">
-          <h2 className="text-lg font-bold">Weekly Volume Trend</h2>
+          <h2 className="text-lg font-bold">Volume Trend</h2>
           <div className="mt-4 space-y-2">
-            {data.charts.volumeTrend.map((item) => (
-              <div key={item.week} className="grid grid-cols-[40px_1fr_70px] items-center gap-2">
+            {data.charts.volumeTrend.map((item, idx) => (
+              <div key={`${item.week}-${idx}`} className="grid grid-cols-[40px_1fr_70px] items-center gap-2">
                 <span className="text-sm text-[color:var(--muted)]">{item.week}</span>
                 <div className="h-3 rounded-full bg-[color:var(--surface-muted)]">
                   <div
@@ -96,13 +103,13 @@ export default function DashboardPage() {
         <article className="card p-4">
           <h2 className="text-lg font-bold">Estimated 1RM Progress</h2>
           <div className="mt-4 space-y-2">
-            {data.charts.oneRMTrend.map((item) => (
-              <div key={item.date} className="grid grid-cols-[50px_1fr_60px] items-center gap-2">
+            {data.charts.oneRMTrend.map((item, idx) => (
+              <div key={`${item.date}-${idx}`} className="grid grid-cols-[50px_1fr_60px] items-center gap-2">
                 <span className="text-sm text-[color:var(--muted)]">{item.date}</span>
                 <div className="h-3 rounded-full bg-[color:var(--surface-muted)]">
                   <div
                     className="h-3 rounded-full bg-[color:var(--success)]"
-                    style={{ width: `${Math.round((item.oneRM / 220) * 100)}%` }}
+                    style={{ width: `${Math.round((item.oneRM / maxOneRM) * 100)}%` }}
                   />
                 </div>
                 <span className="text-right text-sm font-semibold">{item.oneRM}</span>

@@ -3,21 +3,26 @@ import { getRequestUserId } from "@/src/server/middleware/require-auth";
 import { handleUploadCsv } from "@/src/server/uploads/upload.routes";
 
 export async function POST(request: NextRequest) {
-  const userId = await getRequestUserId(request);
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const userId = await getRequestUserId(request);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const formData = await request.formData();
+    const file = formData.get("file");
+
+    if (!(file instanceof File)) {
+      return NextResponse.json({ error: "CSV file is required" }, { status: 400 });
+    }
+
+    if (!file.name.toLowerCase().endsWith(".csv")) {
+      return NextResponse.json({ error: "Only CSV files are supported" }, { status: 400 });
+    }
+
+    return handleUploadCsv(userId, file);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Upload failed";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  const formData = await request.formData();
-  const file = formData.get("file");
-
-  if (!(file instanceof File)) {
-    return NextResponse.json({ error: "CSV file is required" }, { status: 400 });
-  }
-
-  if (!file.name.toLowerCase().endsWith(".csv")) {
-    return NextResponse.json({ error: "Only CSV files are supported" }, { status: 400 });
-  }
-
-  return handleUploadCsv(userId, file);
 }

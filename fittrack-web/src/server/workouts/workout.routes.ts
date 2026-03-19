@@ -14,5 +14,12 @@ export async function handleCreateWorkout(userId: string, body: unknown) {
 
 export async function handleListWorkouts(userId: string, query?: string, date?: string) {
 	const sessions = await listWorkoutSessions(userId, { query, date });
-	return NextResponse.json({ sessions });
+	return NextResponse.json(
+		{ sessions },
+		{
+			headers: {
+				"cache-control": "no-store, max-age=0",
+			},
+		},
+	);
 }

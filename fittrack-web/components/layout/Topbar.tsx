@@ -1,23 +1,31 @@
 "use client";
 
-import { setDateRange, setSelectedExerciseId } from "@/store/slices/dashboardSlice";
+import { useEffect, useMemo, useState } from "react";
+import { authClient } from "@/src/lib/auth-client";
+import { setDateRange } from "@/store/slices/dashboardSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-
-const exerciseOptions = [
-  { value: "", label: "All Exercises" },
-  { value: "bench", label: "Bench Press" },
-  { value: "squat", label: "Back Squat" },
-  { value: "deadlift", label: "Deadlift" },
-  { value: "row", label: "Barbell Row" },
-];
 
 export function Topbar() {
   const dispatch = useAppDispatch();
   const authEmail = useAppSelector((state) => state.auth.email);
   const dateRange = useAppSelector((state) => state.dashboard.dateRange);
-  const selectedExerciseId = useAppSelector(
-    (state) => state.dashboard.selectedExerciseId,
-  );
+  const [fallbackEmail, setFallbackEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (authEmail) {
+      setFallbackEmail(null);
+      return;
+    }
+
+    const run = async () => {
+      const result = await authClient.getSession();
+      setFallbackEmail(result.data?.user?.email ?? null);
+    };
+
+    void run();
+  }, [authEmail]);
+
+  const visibleEmail = useMemo(() => authEmail ?? fallbackEmail, [authEmail, fallbackEmail]);
 
   return (
     <header className="card mb-4 flex flex-col gap-3 p-4 md:flex-row md:items-end md:justify-between">
@@ -26,12 +34,14 @@ export function Topbar() {
         <p className="text-sm text-[color:var(--muted)]">
           Monitor training trends and find weak points.
         </p>
-        {authEmail ? (
-          <p className="mt-1 text-xs text-[color:var(--muted)]">Signed in as {authEmail}</p>
-        ) : null}
       </div>
 
-      <div className="grid w-full gap-2 sm:grid-cols-3 md:max-w-xl">
+      <div className="w-full md:max-w-xl">
+        <p className="mb-2 text-right text-sm text-[color:var(--muted)]">
+          Signed in as{" "}
+          <span className="font-bold text-[color:var(--primary)]">{visibleEmail ?? "loading..."}</span>
+        </p>
+        <div className="grid gap-2 sm:grid-cols-2">
         <label className="text-xs font-semibold text-[color:var(--muted)]">
           From
           <input
@@ -58,22 +68,7 @@ export function Topbar() {
             }
           />
         </label>
-        <label className="text-xs font-semibold text-[color:var(--muted)]">
-          Exercise
-          <select
-            value={selectedExerciseId ?? ""}
-            className="field mt-1"
-            onChange={(event) =>
-              dispatch(setSelectedExerciseId(event.target.value || null))
-            }
-          >
-            {exerciseOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        </div>
       </div>
     </header>
   );

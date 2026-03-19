@@ -28,6 +28,7 @@ export default function HistoryPage() {
 
     const response = await fetch(`/api/workouts?${params.toString()}`, {
       credentials: "include",
+      cache: "no-store",
     });
     const data = await response.json();
     if (!response.ok) {
@@ -40,6 +41,23 @@ export default function HistoryPage() {
 
   useEffect(() => {
     fetchSessions();
+
+    const onFocus = () => {
+      void fetchSessions();
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void fetchSessions();
+      }
+    };
+
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   }, []);
 
   return (

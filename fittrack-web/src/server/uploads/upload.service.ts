@@ -28,45 +28,59 @@ export async function processWorkoutCsvUpload(userId: string, fileName: string, 
 	const parsed = parseWorkoutCsv(content.toString("utf-8"));
 
 	const sessionByDate = new Map<string, string>();
+	const exerciseByName = new Map<string, string>();
+	const firstNoteByDate = new Map<string, string | undefined>();
+
+	for (const row of parsed.validRows) {
+		if (!firstNoteByDate.has(row.date)) {
+			firstNoteByDate.set(row.date, row.notes);
+		}
+	}
+
+	const uniqueDates = Array.from(new Set(parsed.validRows.map((row) => row.date))).sort();
+	const uniqueExercises = Array.from(new Set(parsed.validRows.map((row) => row.exercise)));
 
 	await prisma.$transaction(async (tx) => {
-		for (const row of parsed.validRows) {
-			let sessionId = sessionByDate.get(row.date);
-
-			if (!sessionId) {
-				const session = await tx.workoutSession.create({
-					data: {
-						userId,
-						date: new Date(`${row.date}T00:00:00.000Z`),
-						notes: row.notes,
-					},
-				});
-				sessionId = session.id;
-				sessionByDate.set(row.date, session.id);
-			}
-
-			const exercise = await tx.exercise.upsert({
-				where: {
-					name: row.exercise,
-				},
-				update: {
-					muscleGroup: inferMuscleGroup(row.exercise, row.muscleGroup),
-				},
-				create: {
-					name: row.exercise,
-					muscleGroup: inferMuscleGroup(row.exercise, row.muscleGroup),
+		for (const date of uniqueDates) {
+			const session = await tx.workoutSession.create({
+				data: {
+					userId,
+					date: new Date(`${date}T00:00:00.000Z`),
+					notes: firstNoteByDate.get(date),
 				},
 			});
+			sessionByDate.set(date, session.id);
+		}
 
-			await tx.workoutSet.create({
-				data: {
-					sessionId,
-					exerciseId: exercise.id,
-					reps: row.reps,
-					weight: row.weight,
-					duration: row.duration,
-					setNumber: row.setNumber ?? 1,
+		for (const exerciseName of uniqueExercises) {
+			const sampleRow = parsed.validRows.find((row) => row.exercise === exerciseName);
+			const exercise = await tx.exercise.upsert({
+				where: {
+					name: exerciseName,
 				},
+				update: {
+					muscleGroup: inferMuscleGroup(exerciseName, sampleRow?.muscleGroup),
+				},
+				create: {
+					name: exerciseName,
+					muscleGroup: inferMuscleGroup(exerciseName, sampleRow?.muscleGroup),
+				},
+			});
+			exerciseByName.set(exerciseName, exercise.id);
+		}
+
+		const setRows = parsed.validRows.map((row) => ({
+			sessionId: sessionByDate.get(row.date)!,
+			exerciseId: exerciseByName.get(row.exercise)!,
+			reps: row.reps,
+			weight: row.weight,
+			duration: row.duration,
+			setNumber: row.setNumber ?? 1,
+		}));
+
+		if (setRows.length > 0) {
+			await tx.workoutSet.createMany({
+				data: setRows,
 			});
 		}
 
@@ -77,6 +91,9 @@ export async function processWorkoutCsvUpload(userId: string, fileName: string, 
 				storageProvider: stored.provider,
 			},
 		});
+	}, {
+		maxWait: 10000,
+		timeout: 60000,
 	});
 
 	return {

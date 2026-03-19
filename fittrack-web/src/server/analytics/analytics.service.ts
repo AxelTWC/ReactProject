@@ -3,7 +3,7 @@ import { prisma } from "@/src/server/db/prisma";
 function getWeekLabel(date: Date): string {
 	const day = date.getUTCDate();
 	const month = date.toLocaleString("en-US", { month: "short", timeZone: "UTC" });
-	return `${month} ${day}`;
+	return `${month}${day}`;
 }
 
 function estimatedOneRM(weight: number, reps: number): number {

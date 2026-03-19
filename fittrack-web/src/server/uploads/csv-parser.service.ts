@@ -8,11 +8,27 @@ export type CsvParseResult = {
 };
 
 export function parseWorkoutCsv(content: string): CsvParseResult {
-	const records = parse(content, {
-		columns: true,
-		skip_empty_lines: true,
-		trim: true,
-	}) as Array<Record<string, string>>;
+	const normalizedContent = content.charCodeAt(0) === 0xfeff ? content.slice(1) : content;
+
+	let records: Array<Record<string, string>>;
+	try {
+		records = parse(normalizedContent, {
+			columns: true,
+			skip_empty_lines: true,
+			trim: true,
+		}) as Array<Record<string, string>>;
+	} catch (error) {
+		return {
+			validRows: [],
+			invalidRows: 1,
+			errors: [
+				{
+					row: 1,
+					message: error instanceof Error ? `Invalid CSV format: ${error.message}` : "Invalid CSV format",
+				},
+			],
+		};
+	}
 
 	const validRows: CsvRow[] = [];
 	const errors: Array<{ row: number; message: string }> = [];
