@@ -1,10 +1,10 @@
 # AI Interaction Record
 
-This file documents representative AI-assisted sessions that meaningfully influenced FitTrack.
+This file documents three AI-assisted sessions that actually influenced how we built FitTrack.
 
 ## Session 1: Diagnosing CSV Import Transaction Timeout
 
-### Prompt (you sent to AI)
+### Prompt
 
 "CSV upload is failing on Azure/PostgreSQL with transaction timeout errors (P2028). How should we change import logic so larger files succeed?"
 
@@ -25,7 +25,7 @@ AI suggested reducing per-row database operations by batching writes:
 
 ## Session 2: Auth Migration to Better Auth + Google OAuth
 
-### Prompt (you sent to AI)
+### Prompt
 
 "Help us replace custom JWT login with Better Auth and Google OAuth while keeping protected routes and user mapping intact."
 
@@ -41,7 +41,7 @@ AI proposed integrating Better Auth with Prisma adapter, wiring auth route handl
 
 ## Session 3: Dashboard/Data Consistency and Cache Behavior
 
-### Prompt (you sent to AI)
+### Prompt
 
 "After logout and navigation, stale dashboard data sometimes appears. Also chart scaling overflows for larger values."
 

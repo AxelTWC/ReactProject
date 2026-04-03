@@ -12,7 +12,7 @@
 
 Many students and gym-goers track workouts across notes apps, spreadsheets, and screenshots. This creates fragmented data and makes progress tracking difficult. We chose FitTrack to solve this problem with one integrated system that combines secure authentication, workout logging, CSV import, cloud file handling, and analytics in a single full-stack application.
 
-The project is significant because it connects practical user workflows (log, upload, review, analyze) with core web engineering requirements (frontend, backend, database, cloud storage, and authentication).
+We built it because it combines real workflows with core engineering work—frontend, backend, database, cloud storage, and authentication all in one system.
 
 ## Objectives
 
@@ -259,9 +259,9 @@ Suggested demo coverage:
 
 ## AI Assistance & Verification (Summary)
 
-AI tools were used as a development assistant for architecture exploration, debugging support, and documentation drafting. Our team treated AI output as suggestions, not source-of-truth, and validated all critical changes against runtime behavior and build outcomes.
+We used AI as a development assistant for architecture questions, debugging, and writing initial drafts. We didn't trust everything it suggested—we tested all changes against actual runtime behavior and build results.
 
-Where AI meaningfully contributed:
+Where AI actually helped:
 
 1. Diagnosing CSV import transaction failures and proposing batch-write strategy.
 2. Reviewing auth migration path to Better Auth with Google OAuth.
