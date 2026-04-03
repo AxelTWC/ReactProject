@@ -80,6 +80,18 @@ export default function UploadPage() {
         <p className="mt-1 text-sm text-[color:var(--muted)]">
           Import historical workouts and inspect parsing quality.
         </p>
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+          <a
+            href="/sample-upload.csv"
+            download
+            className="font-semibold text-[color:var(--primary)] underline-offset-2 hover:underline"
+          >
+            Download sample CSV
+          </a>
+          <span className="text-[color:var(--muted)]">
+            Columns: date, exercise, reps, weight, setNumber, duration, notes, muscleGroup
+          </span>
+        </div>
 
         <div className="mt-4 rounded-xl border-2 border-dashed border-[color:var(--border)] bg-[color:var(--surface-muted)] p-5 text-center">
           <p className="text-sm text-[color:var(--muted)]">Drag a CSV here or choose a file.</p>
