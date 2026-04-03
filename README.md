@@ -242,20 +242,40 @@ Credentials sent to TA: The whole .env file has been sent to TA.
 
 ## Deployment Information
 
+### Platform
 - Deployment platform: Azure App Service
 - Live URL: https://fittrack.azurewebsites.net/
 
+### Prerequisites
+- Azure CLI installed and authenticated (`az login`).
+- Azure App Service resource created (resource group: `ece1724-web-rg`, app name: `fittrack`).
+- Environment variables configured in App Service application settings (via Azure portal or `az webapp config appsettings set`).
+
+### Deployment Steps
+
+From the `fittrack-web/` directory:
+
+1. **Remove previous build artifacts**:
+   ```bash
+   rm -f app.zip
+   ```
+
+2. **Create deployment package** (excludes node_modules, .next cache, .git, and .env files):
+   ```bash
+   zip -r app.zip . -x "node_modules/*" ".next/*" ".git/*" ".env*"
+   ```
+
+3. **Deploy to Azure App Service**:
+   ```bash
+   az webapp deployment source config-zip --resource-group ece1724-web-rg --name fittrack --src app.zip
+   ```
+
+After deployment, verify the live application at https://fittrack.azurewebsites.net/
+
 ## Video Demo
 
-- Demo URL : [PLACEHOLDER: YOUTUBE LINK]
+- Demo URL : https://youtu.be/S4qNV0fJfNQ
 
-Suggested demo coverage:
-
-1. Login/auth flow.
-2. Manual workout creation.
-3. CSV upload + invalid row reporting.
-4. Dashboard analytics refresh from persisted data.
-5. (If deployed) live environment proof.
 
 ## AI Assistance & Verification (Summary)
 
