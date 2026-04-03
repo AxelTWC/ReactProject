@@ -17,7 +17,7 @@ AI suggested reducing per-row database operations by batching writes:
 - Insert workout sets using `createMany` in one transaction.
 - Increase transaction timeout settings for remote DB latency.
 
-### What Your Team Did With It
+### What we did with it
 
 - Useful: The batching approach was applied and significantly reduced transaction overhead.
 - Incorrect/incomplete: Initial suggestion did not fully match our existing schema relationships and required adaptation.
@@ -33,7 +33,7 @@ AI suggested reducing per-row database operations by batching writes:
 
 AI proposed integrating Better Auth with Prisma adapter, wiring auth route handlers, and replacing custom JWT checks with session-based checks.
 
-### What Your Team Did With It
+### What we did with it
 
 - Useful: Migration checklist and integration points accelerated implementation.
 - Incorrect/incomplete: Some suggested code paths needed adjustment for our route structure and middleware usage.
@@ -49,7 +49,7 @@ AI proposed integrating Better Auth with Prisma adapter, wiring auth route handl
 
 AI suggested adding cache-control headers for protected routes and replacing hardcoded chart max values with dynamic calculations from returned data.
 
-### What Your Team Did With It
+### What we did with it
 
 - Useful: Dynamic scaling and cache-control strategy resolved observed behavior.
 - Incorrect/incomplete: Suggested changes were too broad initially; we narrowed updates to protected routes and analytics responses.
